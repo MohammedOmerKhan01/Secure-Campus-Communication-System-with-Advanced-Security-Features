@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure Campus Communication</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+<div class="landing">
+  <div class="landing-card">
+    <span class="landing-logo">⚡</span>
+    <h1>CampusSecure</h1>
+    <p class="landing-sub">Encrypted · Authenticated · Steganographic Communication</p>
+    <div class="landing-options">
+      <a href="{{ url_for('auth.login') }}" class="option-card campus-card">
+        <span class="option-icon">🏫</span>
+        <span class="option-title">Campus Login</span>
+        <span class="option-desc">Campus A &amp; B users</span>
+      </a>
+      <a href="{{ url_for('auth.admin_login') }}" class="option-card admin-card">
+        <span class="option-icon">🛡️</span>
+        <span class="option-title">Admin Login</span>
+        <span class="option-desc">Administrators only</span>
+      </a>
+    </div>
+    <p class="landing-register">New here? <a href="{{ url_for('auth.register') }}">Create an account</a></p>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

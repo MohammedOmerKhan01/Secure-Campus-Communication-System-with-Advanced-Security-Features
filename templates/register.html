@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — CampusSecure</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card campus-auth-card">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {% if category == 'danger' %}⚠️{% elif category == 'success' %}✅{% else %}ℹ️{% endif %} {{ message }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+    <div class="auth-badge campus-badge">🏫 Campus Portal</div>
+    <h2>Create Account</h2>
+    <p class="subtitle">Join your campus communication network</p>
+    <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="3-30 alphanumeric characters"
+               required minlength="3" maxlength="30" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="regPassword" name="password" placeholder="Min 8 chars, upper, lower, number, symbol"
+               required autocomplete="new-password" />
+        <!-- Strength bar -->
+        <div class="pw-strength-bar"><div class="pw-strength-fill" id="strengthFill"></div></div>
+        <div class="pw-strength-label" id="strengthLabel"></div>
+        <!-- Rules checklist -->
+        <div class="pw-rules">
+          <span class="pw-rule" id="rule-len">At least 8 characters</span>
+          <span class="pw-rule" id="rule-upper">Uppercase letter (A-Z)</span>
+          <span class="pw-rule" id="rule-lower">Lowercase letter (a-z)</span>
+          <span class="pw-rule" id="rule-num">Number (0-9)</span>
+          <span class="pw-rule" id="rule-special">Special character (!@#$...)</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="campus">Campus</label>
+        <select id="campus" name="campus" required>
+          <option value="" disabled selected>Select your campus</option>
+          <option value="A">🏫 Campus A</option>
+          <option value="B">🏫 Campus B</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" id="registerBtn">
+        <span class="btn-text">🚀 Create Account</span><span class="spinner"></span>
+      </button>
+    </form>
+    <p class="auth-link">Already registered? <a href="{{ url_for('auth.login') }}">Login</a></p>
+    <p class="auth-link"><a href="{{ url_for('auth.index') }}">← Home</a></p>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

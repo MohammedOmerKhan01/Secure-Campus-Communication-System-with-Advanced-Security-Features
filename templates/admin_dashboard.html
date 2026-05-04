@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — CampusSecure{% endblock %}
+{% block content %}
+<div class="admin-dashboard">
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-num">{{ all_users|length }}</span>
+      <span class="stat-label">Total Users</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">{{ campus_a|length }}</span>
+      <span class="stat-label">Campus A</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">{{ campus_b|length }}</span>
+      <span class="stat-label">Campus B</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">{{ all_messages|length }}</span>
+      <span class="stat-label">Messages</span>
+    </div>
+  </div>
+
+  <!-- Send Panel -->
+  <section class="card admin-send-panel">
+    <h3>📨 Send Message</h3>
+    <div class="send-mode-tabs">
+      <button class="send-tab active" id="tab-direct"    onclick="switchSendTab('direct')">👤 Direct</button>
+      <button class="send-tab"        id="tab-broadcast" onclick="switchSendTab('broadcast')">📢 Broadcast</button>
+    </div>
+
+    <!-- Direct -->
+    <div class="send-panel-body active" id="panel-direct">
+      <div class="admin-send-grid">
+        <div class="form-group">
+          <label for="adminReceiverSelect">Recipient</label>
+          <select id="adminReceiverSelect">
+            <option value="" disabled selected>Select recipient…</option>
+            {% for u in all_users %}
+            <option value="{{ u.username }}" data-campus="{{ u.campus }}">
+              {{ u.username }} — Campus {{ u.campus }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="adminMessageInput">Message</label>
+          <textarea id="adminMessageInput" rows="3" placeholder="Type your message…" maxlength="2000"></textarea>
+          <div class="char-row"><small id="adminCharCount">0 / 2000</small></div>
+        </div>
+        <button class="btn btn-admin" id="adminSendBtn" onclick="adminSendMessage()">
+          <span class="btn-text">🚀 Send</span><span class="spinner"></span>
+        </button>
+        <div id="adminSendStatus" class="status-msg"></div>
+      </div>
+    </div>
+
+    <!-- Broadcast -->
+    <div class="send-panel-body" id="panel-broadcast">
+      <div class="admin-send-grid">
+        <div class="form-group">
+          <label for="broadcastTarget">Target Campus</label>
+          <select id="broadcastTarget">
+            <option value="ALL">📢 Both Campuses (A + B)</option>
+            <option value="A">🏫 Campus A only</option>
+            <option value="B">🏫 Campus B only</option>
+          </select>
+          <small id="broadcastPreview" style="margin-top:.4rem;display:block">
+            Will reach <strong>{{ all_users|length }}</strong> user(s)
+          </small>
+        </div>
+        <div class="form-group">
+          <label for="broadcastMessageInput">Broadcast Message</label>
+          <textarea id="broadcastMessageInput" rows="3" placeholder="This message goes to all users in the selected campus(es)…" maxlength="2000"></textarea>
+          <div class="char-row"><small id="broadcastCharCount">0 / 2000</small></div>
+        </div>
+        <button class="btn btn-broadcast" id="broadcastBtn" onclick="sendBroadcast()">
+          <span class="btn-text">📢 Broadcast</span><span class="spinner"></span>
+        </button>
+        <div id="broadcastStatus" class="status-msg"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="admin-grid">
+    <!-- Left: Users / Logs / Steg tabs -->
+    <section class="card">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('users',this)">👥 Users</button>
+        <button class="tab-btn"        onclick="switchTab('logs',this)">📋 Logs</button>
+        <button class="tab-btn"        onclick="switchTab('steg',this)">🖼️ Steg</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-users">
+        <div class="user-table-wrap">
+          <table class="user-table">
+            <thead><tr><th>#</th><th>Username</th><th>Campus</th></tr></thead>
+            <tbody>
+              {% for u in all_users %}
+              <tr>
+                <td>{{ u.id }}</td>
+                <td>{{ u.username }}</td>
+                <td><span class="campus-tag campus-{{ u.campus }}">Campus {{ u.campus }}</span></td>
+              </tr>
+              {% else %}
+              <tr><td colspan="3" class="empty-state">No users yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-logs">
+        <div class="log-list">
+          {% for log in recent_logs %}
+          {% set cls = 'success' if 'SUCCESS' in log.action else ('failed' if 'FAILED' in log.action else 'info') %}
+          <div class="log-item {{ cls }}">
+            <span class="log-action" style="color:{% if 'SUCCESS' in log.action %}var(--success){% elif 'FAILED' in log.action %}var(--danger){% else %}var(--info){% endif %}">{{ log.action }}</span>
+            <span class="log-user">{{ log.username }}</span>
+            <span class="log-detail">{{ log.detail }}</span>
+            <span class="log-time">{{ log.timestamp.strftime('%m/%d %H:%M') }}</span>
+          </div>
+          {% else %}
+          <p class="empty-state">No activity yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-steg">
+        <div class="log-list">
+          {% for log in steg_logs %}
+          <div class="log-item info">
+            <span class="log-action" style="color:var(--success)">{{ log.action }}</span>
+            <span class="log-user">{{ log.username }}</span>
+            <span class="log-detail">{{ log.detail }}</span>
+            <span class="log-time">{{ log.timestamp.strftime('%m/%d %H:%M') }}</span>
+          </div>
+          {% else %}
+          <p class="empty-state">No steganography activity yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: All messages -->
+    <section class="card">
+      <h3>💬 All Messages</h3>
+      <div class="message-list admin-msg-list">
+        {% for msg in all_messages %}
+        <div class="message-item">
+          <div class="msg-meta">
+            <span class="msg-from">
+              {{ msg.sender_user.username }}
+              <span class="campus-tag campus-{{ msg.sender_user.campus }}">{{ msg.sender_user.campus }}</span>
+              →
+              {{ msg.receiver_user.username }}
+              <span class="campus-tag campus-{{ msg.receiver_user.campus }}">{{ msg.receiver_user.campus }}</span>
+            </span>
+            <span class="msg-time">{{ msg.timestamp.strftime('%b %d, %H:%M') }}</span>
+          </div>
+          <p class="msg-content">{{ msg.content }}</p>
+        </div>
+        {% else %}
+        <p class="empty-state">No messages yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+function switchSendTab(name) {
+  document.querySelectorAll('.send-panel-body').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.send-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+</script>
+{% endblock %}

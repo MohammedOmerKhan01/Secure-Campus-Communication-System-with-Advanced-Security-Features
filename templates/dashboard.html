@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CampusSecure{% endblock %}
+{% block content %}
+<div class="dashboard">
+  <!-- Send Message -->
+  <section class="card">
+    <h3>📨 Send Message</h3>
+    <div class="form-group">
+      <label for="receiverSelect">Recipient</label>
+      <select id="receiverSelect">
+        <option value="" disabled selected>Select recipient…</option>
+        {% for u in users %}
+        <option value="{{ u.username }}" data-campus="{{ u.campus }}">
+          {{ u.username }} — Campus {{ u.campus }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="messageInput">Message</label>
+      <textarea id="messageInput" rows="4" placeholder="Type your message…" maxlength="2000"></textarea>
+      <div class="char-row"><small id="charCount">0 / 2000</small></div>
+    </div>
+    <button class="btn btn-primary" id="sendBtn" onclick="sendMessage()">
+      <span class="btn-text">🚀 Send</span><span class="spinner"></span>
+    </button>
+    <div id="sendStatus" class="status-msg"></div>
+  </section>
+
+  <!-- Message History -->
+  <section class="card">
+    <div class="history-header">
+      <h3>💬 Message History</h3>
+      <div class="filter-row">
+        <input type="text" id="filterUser" placeholder="Filter by username…" />
+        <button class="btn btn-secondary btn-sm" onclick="loadMessages()">↻</button>
+      </div>
+    </div>
+    <div id="messageList" class="message-list">
+      {% for msg in messages %}
+      <div class="message-item {% if msg.sender_user.id == current_user.id %}sent{% else %}received{% endif %}">
+        <div class="msg-meta">
+          <span class="msg-from">
+            {% if msg.sender_user.id == current_user.id %}
+              You → {{ msg.receiver_user.username }}
+              <span class="campus-tag campus-{{ msg.receiver_user.campus }}">{{ msg.receiver_user.campus }}</span>
+            {% else %}
+              {{ msg.sender_user.username }}
+              <span class="campus-tag campus-{{ msg.sender_user.campus }}">{{ msg.sender_user.campus }}</span>
+              → You
+            {% endif %}
+          </span>
+          <span class="msg-time">{{ msg.timestamp.strftime('%b %d, %H:%M') }}</span>
+        </div>
+        <p class="msg-content">{{ msg.content }}</p>
+      </div>
+      {% else %}
+      <p class="empty-state">No messages yet. Start a conversation!</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

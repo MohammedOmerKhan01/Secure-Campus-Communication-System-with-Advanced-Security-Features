@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus Login — CampusSecure</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card campus-auth-card">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {% if category == 'danger' %}⚠️{% elif category == 'success' %}✅{% else %}ℹ️{% endif %} {{ message }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+    <div class="auth-badge campus-badge">🏫 Campus Portal</div>
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Sign in to your campus account</p>
+    <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter username" required autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password" />
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <span class="btn-text">🔐 Sign In</span><span class="spinner"></span>
+      </button>
+    </form>
+    <p class="auth-link">No account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+    <p class="auth-link">Admin? <a href="{{ url_for('auth.admin_login') }}">Admin Login</a></p>
+    <p class="auth-link"><a href="{{ url_for('auth.index') }}">← Home</a></p>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
